@@ -33,12 +33,17 @@ platform_image = pygame.transform.scale(pygame.image.load("images/wood.png"), (7
 game_over_screen = pygame.image.load("images/Gameoverscreen.jpg")
 
 # Carregando os sons do jogo
-pygame.mixer.music.load("C:/Users/ingri/PycharmProjects/pygame 4/sounds/best part.wav")
-pygame.mixer.music.play(-1)
-'''
-pygame.mixer.music.load("sounds/assets_jump (1).mp3")
-gameover_sfx = pygame.mixer.load("sounds/assets_death.mp3")
-'''
+#pygame.mixer.music.load("C:/Users/ingri/PycharmProjects/pygame 4/sounds/best part.wav")
+
+
+jump_fx = pygame.mixer.Sound("sounds/assets_jump (1).wav")
+
+
+
+gameover_sfx = pygame.mixer.Sound("sounds/assets_death.wav")
+
+
+
 # Constantes de pontuação e framerate para o jogo
 fps = 60
 timer = pygame.time.Clock()
@@ -118,6 +123,7 @@ def update_player(y_pos):
     jump_height = 9.5
     gravity = 0.4
     if jump:
+        jump_fx.play()
         y_change = -jump_height
         jump = False
     y_pos += y_change
@@ -167,17 +173,14 @@ screen.blit(background_image2, (0, 0))
 '''
 # Loop principal do jogo
 running = True
-state = 'run'
+state = 'pause'
 while running == True:
     timer.tick(fps)
-    if state == 'run':
-        #background = screen.blit(background_image1, (0,0)) #Desenha o plano de fundo inicial
-
+    if state == 'pause':
+        background = screen.blit(background_image1, (0,0)) #Desenha o plano de fundo inicial
         screen.blit(player, (player_x, player_y)) #Desenha o player
         blocks = [] #Lista onde é adicionada as plataformas geradas pelo radint
         score_last
-
-
 
         # Aqui o plano de fundo muda de acordo com a pontuação que o jogador faz
         if score - score_last > 15 and not game_over and not jump:
@@ -267,6 +270,7 @@ while running == True:
         if player_y < 440:
             player_y = update_player(player_y)
         else:
+            gameover_sfx.play()
             game_over = True
             y_change = 0
             x_change = 0
@@ -282,8 +286,7 @@ while running == True:
         if x_change > 0:
             player = pygame.transform.scale(pygame.image.load("images/jump.png"), (50, 50))
         elif x_change < 0:
-            player = (
-                pygame.transform.flip(pygame.transform.scale(pygame.image.load("images/jump.png"), (50, 50)), 1, 0))
+            player = (pygame.transform.flip(pygame.transform.scale(pygame.image.load("images/jump.png"), (50, 50)), 1, 0))
 
         # Não deixa o personagem subir para longe na vertical
         if player_y < 0:
@@ -301,11 +304,14 @@ while running == True:
         if game_over:
             screen.blit(game_over_screen, (0, 0))
 
+
+        else:
+            screen.blit(menu_image, (0, 0))
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_p:
+                        state = 'run'
         pygame.display.flip()
-    else:
-        screen.blit(menu_image, (0,0))
-        screen.blit(player, (player_x, player_y))
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
 pygame.quit()
